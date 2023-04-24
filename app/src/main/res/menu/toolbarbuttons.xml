@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeBtn"
+        android:icon="@drawable/home"
+        android:title="Home"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/trackerBtn"
+        android:icon="@drawable/tracker"
+        android:title="Tracker"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/entriesBtn"
+        android:icon="@drawable/entries"
+        android:title="Entries"
+        app:showAsAction="always" />
+</menu>
