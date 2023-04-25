@@ -27,21 +27,17 @@ public class Options extends AppCompatActivity {
         TextView milesText = (TextView) findViewById(R.id.miles);
         TextView kilometersText = (TextView) findViewById(R.id.kilometers);
 
-        SharedPreferences sp = getSharedPreferences("sharedPrefName", Context.MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("SP", Context.MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
-        edit.putBoolean("lockedState", false);
-        edit.apply();
+        boolean checkedFlag = sp.getBoolean("checkState", true);
+        formatCheck.setChecked(checkedFlag);
 
-        if (formatCheck.isChecked()) {
+        if (checkedFlag) {
             milesText.setTextColor(Color.parseColor("#EEEEFF"));
             kilometersText.setTextColor(Color.DKGRAY);
-            edit.putBoolean("lockedState", true);
-            edit.apply();
         } else {
             milesText.setTextColor(Color.DKGRAY);
             kilometersText.setTextColor(Color.parseColor("#EEEEFF"));
-            edit.putBoolean("lockedState", false);
-            edit.apply();
         }
 
         formatCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -50,9 +46,13 @@ public class Options extends AppCompatActivity {
                 if (isChecked) {
                     milesText.setTextColor(Color.parseColor("#EEEEFF"));
                     kilometersText.setTextColor(Color.DKGRAY);
+                    edit.putBoolean("checkState", isChecked);
+                    edit.commit();
                 } else {
                     milesText.setTextColor(Color.DKGRAY);
                     kilometersText.setTextColor(Color.parseColor("#EEEEFF"));
+                    edit.putBoolean("checkState", isChecked);
+                    edit.commit();
                 }
             }
         });

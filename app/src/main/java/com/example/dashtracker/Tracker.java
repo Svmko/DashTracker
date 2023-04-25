@@ -71,6 +71,7 @@ public class Tracker extends AppCompatActivity {
         Button stopBtn = (Button) findViewById(R.id.stopBtn);
         Button saveBtn = (Button) findViewById(R.id.saveBtn);
         TextView dateView = (TextView) findViewById(R.id.dateView);
+        TextView distanceTextView = findViewById(R.id.maindistanceView);
 
         stopBtn.setEnabled(false);
         saveBtn.setEnabled(false);
@@ -121,8 +122,7 @@ public class Tracker extends AppCompatActivity {
                         locationCallback,
                         Looper.getMainLooper()
                 );
-                TextView distanceTextView = findViewById(R.id.maindistanceView);
-                distanceTextView.setText(String.format("%.2f meters", totalDistance));
+                edit.putFloat("distance", totalDistance);
             }
         });
 
