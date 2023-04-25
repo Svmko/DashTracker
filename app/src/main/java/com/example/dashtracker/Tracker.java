@@ -1,5 +1,4 @@
 package com.example.dashtracker;
-
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.NotificationChannel;
@@ -20,19 +19,16 @@ import android.widget.TextView;
 import android.location.Location;
 import android.content.pm.PackageManager;
 import java.util.Calendar;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
-
 public class Tracker extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private Location previousLocation;
@@ -41,13 +37,11 @@ public class Tracker extends AppCompatActivity {
     public static final String SP = "sp";
     private String date;
     SQLClass sql = new SQLClass(this);
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbarbuttons, menu);
         return true;
     }
-
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem thing) {
         switch (thing.getItemId()) {
@@ -62,7 +56,6 @@ public class Tracker extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(thing);
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +64,7 @@ public class Tracker extends AppCompatActivity {
         Button stopBtn = (Button) findViewById(R.id.stopBtn);
         Button saveBtn = (Button) findViewById(R.id.saveBtn);
         TextView dateView = (TextView) findViewById(R.id.dateView);
-        TextView distanceTextView = findViewById(R.id.maindistanceView);
+        //EditText editText = (EditText) findViewById(R.id.editTextNumber);
 
         stopBtn.setEnabled(false);
         saveBtn.setEnabled(false);
@@ -79,13 +72,11 @@ public class Tracker extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         previousLocation = null;
         totalDistance = 0;
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("My Notification", "My Notification", NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(Tracker.this, "My Notification")
                 .setSmallIcon(R.drawable.tracker)
                 .setContentTitle("DashTracker")
@@ -95,15 +86,8 @@ public class Tracker extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(Tracker.this);
 
-        SharedPreferences sp = getSharedPreferences("sharedPrefName", MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("SP", MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
-        boolean bool = sp.getBoolean("lockedState", false);
-
-        if (bool = false) {
-
-        } else {
-
-        }
 
         stBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("MissingPermission")
@@ -111,6 +95,7 @@ public class Tracker extends AppCompatActivity {
             public void onClick(View view) {
                 stBtn.setEnabled(false);
                 stopBtn.setEnabled(true);
+                boolean bool = sp.getBoolean("checkState", false);
 
                 managerCompat.notify(1, builder.build());
                 if (ActivityCompat.checkSelfPermission(Tracker.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Tracker.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -122,7 +107,17 @@ public class Tracker extends AppCompatActivity {
                         locationCallback,
                         Looper.getMainLooper()
                 );
-                edit.putFloat("distance", totalDistance);
+                //distanceTextView.setText(String.format("%.2f meters", totalDistance));
+
+                if(bool == false) {
+                    TextView distanceTextView = findViewById(R.id.maindistanceView);
+                    float kilometers = totalDistance/1000;
+                    distanceTextView.setText(String.format("%.2f km", kilometers));
+                } else {
+                    TextView distanceTextView = findViewById(R.id.maindistanceView);
+                    double miles = totalDistance*0.000621371192;
+                    distanceTextView.setText(String.format("%.2f m", miles));
+                }
             }
         });
 
@@ -138,7 +133,6 @@ public class Tracker extends AppCompatActivity {
                 int year = c.get(Calendar.YEAR);
                 int month = c.get(Calendar.MONTH);
                 int day = c.get(Calendar.DAY_OF_MONTH);
-
                 DatePickerDialog datePickerDialog = new DatePickerDialog(
                         Tracker.this,
                         new DatePickerDialog.OnDateSetListener() {
@@ -147,11 +141,10 @@ public class Tracker extends AppCompatActivity {
                                 dateView.setText((moY + 1) + "-" + doM + "-" + year);
                             }
                         },
-                year, month, day);
+                        year, month, day);
                 datePickerDialog.show();
             }
         });
-
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -166,26 +159,25 @@ public class Tracker extends AppCompatActivity {
             }
         });
     }
-
     private LocationRequest getLocationRequest() {
         return LocationRequest.create()
                 .setInterval(10000)
                 .setFastestInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
-
     private LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
-
             Location currentLocation = locationResult.getLastLocation();
-
             if (previousLocation != null) {
                 float distance = previousLocation.distanceTo(currentLocation);
                 totalDistance += distance;
             }
             previousLocation = currentLocation;
+
+            TextView distanceTextView = findViewById(R.id.maindistanceView);
+            distanceTextView.setText(String.format("%.2f meters", totalDistance));
         }
     };
 }
