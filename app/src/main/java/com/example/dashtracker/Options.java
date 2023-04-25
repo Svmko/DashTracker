@@ -2,7 +2,9 @@ package com.example.dashtracker;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -25,12 +27,21 @@ public class Options extends AppCompatActivity {
         TextView milesText = (TextView) findViewById(R.id.miles);
         TextView kilometersText = (TextView) findViewById(R.id.kilometers);
 
+        SharedPreferences sp = getSharedPreferences("sharedPrefName", Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.putBoolean("lockedState", false);
+        edit.apply();
+
         if (formatCheck.isChecked()) {
             milesText.setTextColor(Color.parseColor("#EEEEFF"));
             kilometersText.setTextColor(Color.DKGRAY);
+            edit.putBoolean("lockedState", true);
+            edit.apply();
         } else {
             milesText.setTextColor(Color.DKGRAY);
             kilometersText.setTextColor(Color.parseColor("#EEEEFF"));
+            edit.putBoolean("lockedState", false);
+            edit.apply();
         }
 
         formatCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

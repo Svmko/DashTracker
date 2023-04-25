@@ -71,7 +71,9 @@ public class Tracker extends AppCompatActivity {
         Button stopBtn = (Button) findViewById(R.id.stopBtn);
         Button saveBtn = (Button) findViewById(R.id.saveBtn);
         TextView dateView = (TextView) findViewById(R.id.dateView);
-        //EditText editText = (EditText) findViewById(R.id.editTextNumber);
+
+        stopBtn.setEnabled(false);
+        saveBtn.setEnabled(false);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         previousLocation = null;
@@ -92,13 +94,23 @@ public class Tracker extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(Tracker.this);
 
-        SharedPreferences sp = getSharedPreferences(SP, MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("sharedPrefName", MODE_PRIVATE);
         SharedPreferences.Editor edit = sp.edit();
+        boolean bool = sp.getBoolean("lockedState", false);
+
+        if (bool = false) {
+
+        } else {
+
+        }
 
         stBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("MissingPermission")
             @Override
             public void onClick(View view) {
+                stBtn.setEnabled(false);
+                stopBtn.setEnabled(true);
+
                 managerCompat.notify(1, builder.build());
                 if (ActivityCompat.checkSelfPermission(Tracker.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(Tracker.this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     //ActivityCompat.requestPermissions();
@@ -109,12 +121,17 @@ public class Tracker extends AppCompatActivity {
                         locationCallback,
                         Looper.getMainLooper()
                 );
+                TextView distanceTextView = findViewById(R.id.maindistanceView);
+                distanceTextView.setText(String.format("%.2f meters", totalDistance));
             }
         });
 
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                stopBtn.setEnabled(false);
+                saveBtn.setEnabled(true);
+
                 managerCompat.cancelAll();
                 final Calendar c = Calendar.getInstance();
 
@@ -138,6 +155,9 @@ public class Tracker extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                saveBtn.setEnabled(false);
+                stBtn.setEnabled(true);
+
                 date = dateView.getText().toString();
                 edit.putString(FINAL_DATE, date);
                 edit.apply();
@@ -166,9 +186,6 @@ public class Tracker extends AppCompatActivity {
                 totalDistance += distance;
             }
             previousLocation = currentLocation;
-
-            TextView distanceTextView = findViewById(R.id.maindistanceView);
-            distanceTextView.setText(String.format("%.2f meters", totalDistance));
         }
     };
 }

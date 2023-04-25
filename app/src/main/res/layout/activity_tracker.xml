@@ -10,7 +10,7 @@
         android:id="@+id/maindistanceView"
         android:layout_width="306dp"
         android:layout_height="48dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="200dp"
         android:fontFamily="monospace"
         android:textAlignment="center"
         android:textColor="#EEEEFF"
@@ -36,7 +36,6 @@
         android:id="@+id/dateView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
         android:fontFamily="monospace"
         android:text="Date Not Set"
         android:textColor="#EEEEFF"
@@ -44,7 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/milesOrKilo" />
+        app:layout_constraintTop_toBottomOf="@+id/maindistanceView" />
 
     <Button
         android:id="@+id/stopBtn"
@@ -65,18 +64,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stopBtn" />
-
-    <TextView
-        android:id="@+id/milesOrKilo"
-        android:layout_width="199dp"
-        android:layout_height="165dp"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:text="0"
-        android:textColor="#FFFFFF"
-        android:textSize="96sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/maindistanceView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
