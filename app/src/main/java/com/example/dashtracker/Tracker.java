@@ -34,8 +34,10 @@ public class Tracker extends AppCompatActivity {
     private Location previousLocation;
     private float totalDistance;
     public static final String FINAL_DATE = "final_date";
-    public static final String SP = "sp";
+    //public static final String SP = "sp";
     private String date;
+    private float kilometers;
+    private double miles;
     SQLClass sql = new SQLClass(this);
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,6 +67,8 @@ public class Tracker extends AppCompatActivity {
         Button saveBtn = (Button) findViewById(R.id.saveBtn);
         TextView dateView = (TextView) findViewById(R.id.dateView);
         //EditText editText = (EditText) findViewById(R.id.editTextNumber);
+        SharedPreferences sp = getSharedPreferences("SP", MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
 
         stopBtn.setEnabled(false);
         saveBtn.setEnabled(false);
@@ -72,11 +76,13 @@ public class Tracker extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         previousLocation = null;
         totalDistance = 0;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("My Notification", "My Notification", NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(channel);
         }
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(Tracker.this, "My Notification")
                 .setSmallIcon(R.drawable.tracker)
                 .setContentTitle("DashTracker")
@@ -86,13 +92,11 @@ public class Tracker extends AppCompatActivity {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
         NotificationManagerCompat managerCompat = NotificationManagerCompat.from(Tracker.this);
 
-        SharedPreferences sp = getSharedPreferences("SP", MODE_PRIVATE);
-        SharedPreferences.Editor edit = sp.edit();
-
         stBtn.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("MissingPermission")
             @Override
             public void onClick(View view) {
+                float getTotalDistance = sp.getFloat("totalDistance", totalDistance);
                 stBtn.setEnabled(false);
                 stopBtn.setEnabled(true);
                 boolean bool = sp.getBoolean("checkState", false);
@@ -111,11 +115,11 @@ public class Tracker extends AppCompatActivity {
 
                 if(bool == false) {
                     TextView distanceTextView = findViewById(R.id.maindistanceView);
-                    float kilometers = totalDistance/1000;
+                    kilometers = getTotalDistance/1000;
                     distanceTextView.setText(String.format("%.2f km", kilometers));
                 } else {
                     TextView distanceTextView = findViewById(R.id.maindistanceView);
-                    double miles = totalDistance*0.000621371192;
+                    miles = getTotalDistance*0.000621371192;
                     distanceTextView.setText(String.format("%.2f m", miles));
                 }
             }
@@ -143,22 +147,36 @@ public class Tracker extends AppCompatActivity {
                         },
                         year, month, day);
                 datePickerDialog.show();
+
+                fusedLocationClient.removeLocationUpdates(locationCallback);
             }
         });
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean bool = sp.getBoolean("checkState", false);
                 saveBtn.setEnabled(false);
                 stBtn.setEnabled(true);
 
                 date = dateView.getText().toString();
                 edit.putString(FINAL_DATE, date);
                 edit.apply();
-                sql.addToDB(date, "0");
+
+                if(bool == false) {
+                    sql.addToDB(date, String.format("%.2f km", kilometers));
+                } else {
+                    sql.addToDB(date, String.format("%.2f m", miles));
+                }
                 Toast.makeText(getApplicationContext(), "Saved entry!", Toast.LENGTH_SHORT).show();
+
+                miles = 0;
+                kilometers = 0;
+                edit.putFloat("totalDistance", 0);
+                edit.commit();
             }
         });
     }
+
     private LocationRequest getLocationRequest() {
         return LocationRequest.create()
                 .setInterval(10000)
@@ -176,8 +194,13 @@ public class Tracker extends AppCompatActivity {
             }
             previousLocation = currentLocation;
 
-            TextView distanceTextView = findViewById(R.id.maindistanceView);
-            distanceTextView.setText(String.format("%.2f meters", totalDistance));
+            SharedPreferences sp = getSharedPreferences("SP", MODE_PRIVATE);
+            SharedPreferences.Editor edit = sp.edit();
+
+            edit.putFloat("totalDistance", totalDistance);
+            edit.commit();
+            //TextView distanceTextView = findViewById(R.id.maindistanceView);
+            //distanceTextView.setText(String.format("%.2f meters", totalDistance));
         }
     };
 }
